@@ -134,13 +134,13 @@ public class MyWebSocket {
                 mydata.setMsg(msg);
                 mydata.setData(message);
                 sessionMap.get(toId).session.getBasicRemote().sendText(JSON.toJSONString(mydata));
-                redisTemplate.opsForList().rightPush("chatlog_" + toId + "_" + chat_type + "_" + from_id, message);
+                redisTemplate.opsForList().rightPush("chatlog_" + toId+ chat_type + "_" + Integer.parseInt(from_id), message);
             } catch (IOException e) {
                 e.printStackTrace();
             }
         } else {
             //redisTemplate.opsForZSet().add(toId, message, System.currentTimeMillis());
-            redisTemplate.opsForList().rightPush("getmessage_" + toId, message);
+            redisTemplate.opsForList().rightPush("getmessage_" + Integer.parseInt(toId), message);
         }
     }
 

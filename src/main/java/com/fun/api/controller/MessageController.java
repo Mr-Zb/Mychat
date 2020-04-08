@@ -66,8 +66,8 @@ public class MessageController extends BaseController {
             imMessage.setId(System.currentTimeMillis() + "");
             imMessage.setFrom_avatar(fxUserInfo.getAvatar());
             imMessage.setFrom_name(fxUserInfo.getNickName());
-            imMessage.setFrom_id(fromId + "");
-            imMessage.setTo_id(to_id);
+            imMessage.setFrom_id(fromId);
+            imMessage.setTo_id(Integer.parseInt(to_id));
             imMessage.setType(type);
             //有备注显示备注没备注显示昵称
             imMessage.setTo_name(StringUtils.isBlank(fxFriends.getFriendRemark()) ? fxFriends.getNickName() : fxFriends.getFriendRemark());
@@ -76,7 +76,7 @@ public class MessageController extends BaseController {
             imMessage.setData(data);
             imMessage.setOptions(null);
             imMessage.setCreate_time(System.currentTimeMillis());
-            imMessage.setIs_remove("0");
+            imMessage.setIs_remove(0);
             if ("video".equals(imMessage.getType())) {
                 imMessage.setOptions(new options().setPoster(data+"?x-oss-process=video/snapshot,t_10,m_fast,w_300,f_png"));
             }
@@ -90,14 +90,14 @@ public class MessageController extends BaseController {
             String message = JSON.toJSONString(imMessage);
             myWebSocket.sendMessage(message, to_id, chat_type, fromId + "", null);
             //保存聊天信息
-            redisTemplate.opsForList().rightPush("chatlog_" + fromId + "_" + chat_type + "_" + to_id, message);
+            redisTemplate.opsForList().rightPush("chatlog_" + fromId + chat_type + "_" + Integer.parseInt(to_id), message);
             return new AjaxReturn<>(200, null, imMessage);
         } else {
             //TODO
             //查看是否在群中 是否被禁言
             FxGroupUser fxGroupUser = fxGroupUserService.selectByIds(Integer.parseInt(to_id), fromId);
             if (fxGroupUser == null) {
-                return new AjaxReturn<>(500, "你被禁言了！", null);
+                return new AjaxReturn<>(500, "该群聊不存在或你被禁言了！", null);
             }
             List<FxGroupUser> fxGroupUsers = fxGroupUserService.selectByGroupId(Integer.parseInt(to_id));
             FxGroupInfo fxGroupInfo = fxGroupInfoService.selectByPrimaryKey(Integer.parseInt(to_id));
@@ -107,8 +107,8 @@ public class MessageController extends BaseController {
             imMessage.setId(System.currentTimeMillis() + "");
             imMessage.setFrom_avatar(fxUserInfo.getAvatar());
             imMessage.setFrom_name(fxUserInfo.getNickName());
-            imMessage.setFrom_id(fromId + "");
-            imMessage.setTo_id(to_id);
+            imMessage.setFrom_id(fromId);
+            imMessage.setTo_id(Integer.parseInt(to_id));
             imMessage.setType(type);
             //有备注显示备注没备注显示昵称
             imMessage.setTo_name(fxGroupInfo.getGroupName());
@@ -117,7 +117,7 @@ public class MessageController extends BaseController {
             imMessage.setData(data);
             imMessage.setOptions(null);
             imMessage.setCreate_time(System.currentTimeMillis());
-            imMessage.setIs_remove("0");
+            imMessage.setIs_remove(0);
             if ("video".equals(imMessage.getType())) {
                 imMessage.setOptions(new options().setPoster(data+"?x-oss-process=video/snapshot,t_10,m_fast,w_300,f_png"));
             }
@@ -149,7 +149,7 @@ public class MessageController extends BaseController {
             JSONObject jsonObject = JSON.parseObject((String) message);
             String from_id = (String) jsonObject.get("from_id");
             String chat_type = (String) jsonObject.get("chat_type");
-            myWebSocket.sendMessage((String) message, fromId + "", from_id + "", chat_type, null);
+            myWebSocket.sendMessage((String) message, fromId + "", from_id, chat_type, null);
         });
         return new AjaxReturn<>(200, "发送成功！", null);
     }
@@ -160,9 +160,9 @@ public class MessageController extends BaseController {
         Integer fromId = getAuthentication(request);
         ImMessage imMessage = new ImMessage();
         imMessage.setId(id);
-        imMessage.setFrom_id(fromId + "");
+        imMessage.setFrom_id(fromId);
         imMessage.setChat_type(chat_type);
-        imMessage.setTo_id(to_id);
+        imMessage.setTo_id(Integer.parseInt(to_id));
         //// 单聊
         if ("user".equals(chat_type)) {
             MyWebSocket myWebSocket = new MyWebSocket();

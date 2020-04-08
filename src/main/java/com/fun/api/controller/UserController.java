@@ -96,8 +96,10 @@ public class UserController extends BaseController {
     @ApiOperation(value = "添加好友 【客户端】" ,  notes="添加好友")
     @RequestMapping(path = { "/request/add" }, method = {RequestMethod.POST })
     public AjaxReturn add(HttpServletRequest request,Integer friendId,String msg){
-        //TODO添加好友通知
         Integer authentication = getAuthentication(request);
+        if (authentication.equals(friendId)){
+            return new AjaxReturn(500, "不能添加自己！", null);
+        }
         //再次请求不添加state重新发出通知即可
         FxRequestState fxRequestState1 = fxRequestStateService.selectByIds(authentication, friendId);
         MyWebSocket myWebSocket = new MyWebSocket();
@@ -146,6 +148,8 @@ public class UserController extends BaseController {
         Integer authentication = getAuthentication(request);
         Pagination<FxRequestState> fxRequestStatePagination = fxRequestStateService.selectByUserId(queryDto, authentication);
         List<FxRequestState> fxRequestStates = fxRequestStateService.selectByUserState(authentication);
+        int size = fxRequestStates.size();
+        fxRequestStatePagination.setCount(new Long(size));
         return new AjaxReturn<>(200,fxRequestStates.size()+"",fxRequestStatePagination);
     }
 

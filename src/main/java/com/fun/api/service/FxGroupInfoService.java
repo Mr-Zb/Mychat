@@ -25,7 +25,6 @@ public class FxGroupInfoService {
     private FxGroupInfoMapper fxGroupInfoMapper;
     @Autowired
     private FxGroupUserMapper fxGroupUserMapper;
-
     @Autowired
     private AliyunUtil aliyunUtil;
     /**
@@ -70,7 +69,7 @@ public class FxGroupInfoService {
         String aliyun ="";
         try {
             inputStream = QrCodeUtils.encode3(message, groupImg, true);
-            aliyunUtil.aliyun(inputStream, tem);
+             aliyun = aliyunUtil.aliyun(inputStream, tem);
             record.setGroupQrCode(aliyun);
         } catch (Exception e) {
             e.printStackTrace();

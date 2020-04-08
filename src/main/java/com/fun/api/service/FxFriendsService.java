@@ -79,20 +79,16 @@ public class FxFriendsService {
         FxFriends fxFriends1 = new FxFriends();
         fxFriends1.setUserId(fxRequestState.getUserId());
         fxFriends1.setFriendId(fxRequestState.getRequestId());
-        if (StringUtils.isBlank(requestMsg)){
-            fxFriends1.setFriendRemark(null);
-        }else {
-            fxFriends1.setFriendRemark(requestMsg);
-        }
+        fxFriends1.setFriendRemark(requestMsg);
         FxUserInfo user = userInfoMapper.selectByPrimaryKey(userId);
-        FxUserInfo friend = userInfoMapper.selectByPrimaryKey(fxId);
+        FxUserInfo friend = userInfoMapper.selectByPrimaryKey(fxRequestState.getRequestId());
         MyWebSocket myWebSocket = new MyWebSocket();
         ImMessage imMessage = new ImMessage();
         imMessage.setId(System.currentTimeMillis() + "");
         imMessage.setFrom_avatar(user.getAvatar());
         imMessage.setFrom_name(user.getNickName());
-        imMessage.setFrom_id(userId + "");
-        imMessage.setTo_id(fxId+"");
+        imMessage.setFrom_id(userId);
+        imMessage.setTo_id(fxId);
         imMessage.setType("system");
         //有备注显示备注没备注显示昵称
         imMessage.setTo_name(fxFriends.getNickName());
@@ -101,16 +97,16 @@ public class FxFriendsService {
         imMessage.setData("你们已经是好友，可以开始聊天啦");
         imMessage.setOptions(null);
         imMessage.setCreate_time(System.currentTimeMillis());
-        imMessage.setIs_remove("0");
+        imMessage.setIs_remove(0);
         String message = JSON.toJSONString(imMessage);
         //
-        myWebSocket.sendMessage(message, fxId+"", "user", userId + "", null);
+        myWebSocket.sendMessage(message, fxRequestState.getRequestId()+"", "user", userId + "", null);
         ImMessage imMessage2 = new ImMessage();
         imMessage2.setId(System.currentTimeMillis() + "");
-        imMessage2.setFrom_id(fxId+"");
-        imMessage2.setFrom_name(friend.getNickName());
+        imMessage2.setFrom_id(fxRequestState.getRequestId());
+        imMessage2.setFrom_name(StringUtils.isNotBlank(requestMsg)?requestMsg:friend.getNickName());
         imMessage2.setFrom_avatar(friend.getAvatar());
-        imMessage2.setTo_id(userId+"");
+        imMessage2.setTo_id(userId);
         imMessage2.setTo_avatar(user.getAvatar());
         imMessage2.setTo_name(user.getNickName());
         imMessage2.setType("system");
@@ -118,10 +114,10 @@ public class FxFriendsService {
         imMessage2.setData("你们已经是好友，可以开始聊天啦");
         imMessage2.setOptions(null);
         imMessage2.setCreate_time(System.currentTimeMillis());
-        imMessage2.setIs_remove("0");
+        imMessage2.setIs_remove(0);
         //
         String message2 = JSON.toJSONString(imMessage2);
-        myWebSocket.sendMessage(message2, userId+"", "user", fxId + "", null);
+        myWebSocket.sendMessage(message2, userId+"", "user", fxRequestState.getRequestId() + "", null);
         return fxFriendsMapper.insertSelective(fxFriends1);
     }
     /**

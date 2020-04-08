@@ -23,9 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.NotNull;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 @Slf4j
@@ -66,8 +64,8 @@ public class GroupController extends BaseController {
             imMessage.setId(System.currentTimeMillis()+"");
             imMessage.setFrom_avatar(fxUserInfo.getAvatar());
             imMessage.setFrom_name(fxUserInfo.getNickName());
-            imMessage.setFrom_id(fromId+"");
-            imMessage.setTo_id(fxGroupInfo.getFxId()+"");
+            imMessage.setFrom_id(fromId);
+            imMessage.setTo_id(fxGroupInfo.getFxId());
             imMessage.setType("system");
             imMessage.setTo_name(fxGroupInfo.getGroupName());
             imMessage.setTo_avatar(aliyunUtil.getGroupImg());
@@ -75,7 +73,7 @@ public class GroupController extends BaseController {
             imMessage.setData("创建群聊成功，可以开始聊天啦");
             imMessage.setOptions(null);
             imMessage.setCreate_time(System.currentTimeMillis());
-            imMessage.setIs_remove("0");
+            imMessage.setIs_remove(0);
             MyWebSocket myWebSocket = new MyWebSocket();
             String message = JSON.toJSONString(imMessage);
             myWebSocket.sendMessage(message,fromId+"","group",fromId+"",null);
@@ -128,26 +126,25 @@ public class GroupController extends BaseController {
         }else {
             fxGroupUserService.deleteByIds(groupId,authentication);
             imMessage.setData(fxUserInfo.getNickName()+" 退出该群聊");
+            imMessage.setId(System.currentTimeMillis()+"");
+            imMessage.setFrom_avatar(fxUserInfo.getAvatar());
+            imMessage.setFrom_name(fxUserInfo.getNickName());
+            imMessage.setFrom_id(authentication);
+            imMessage.setTo_id(groupId);
+            imMessage.setType("system");
+            imMessage.setTo_name(fxGroupInfo.getGroupName());
+            imMessage.setTo_avatar(fxGroupInfo.getGroupAvatar());
+            imMessage.setChat_type("group");
+            imMessage.setOptions(null);
+            imMessage.setCreate_time(System.currentTimeMillis());
+            imMessage.setIs_remove(0);
+            List<FxGroupUser> fxGroupUsers = fxGroupUserService.selectByGroupId(groupId);
+            MyWebSocket myWebSocket = new MyWebSocket();
+            String message = JSON.toJSONString(imMessage);
+            fxGroupUsers.forEach(fx->{
+                myWebSocket.sendMessage(message,fx.getUserId()+"","group",authentication+"",null);
+            });
         }
-        imMessage.setId(System.currentTimeMillis()+"");
-        imMessage.setFrom_avatar(fxUserInfo.getAvatar());
-        imMessage.setFrom_name(fxUserInfo.getNickName());
-        imMessage.setFrom_id(authentication+"");
-        imMessage.setTo_id(groupId+"");
-        imMessage.setType("system");
-        imMessage.setTo_name(fxGroupInfo.getGroupName());
-        imMessage.setTo_avatar(fxGroupInfo.getGroupAvatar());
-        imMessage.setChat_type("group");
-        imMessage.setOptions(null);
-        imMessage.setCreate_time(System.currentTimeMillis());
-        imMessage.setIs_remove("0");
-        List<FxGroupUser> fxGroupUsers = fxGroupUserService.selectByGroupId(groupId);
-        MyWebSocket myWebSocket = new MyWebSocket();
-        String message = JSON.toJSONString(imMessage);
-       // myWebSocket.sendMessage(message,authentication+"","group",authentication+"",null);
-        fxGroupUsers.forEach(fx->{
-            myWebSocket.sendMessage(message,fx.getUserId()+"","group",authentication+"",null);
-        });
         return new AjaxReturn<>(200,"操作成功！",null);
     }
     //
@@ -170,8 +167,8 @@ public class GroupController extends BaseController {
         imMessage.setId(System.currentTimeMillis()+"");
         imMessage.setFrom_avatar(fxUserInfo.getAvatar());
         imMessage.setFrom_name(fxUserInfo.getNickName());
-        imMessage.setFrom_id(authentication+"");
-        imMessage.setTo_id(groupId+"");
+        imMessage.setFrom_id(authentication);
+        imMessage.setTo_id(groupId);
         imMessage.setType("system");
         imMessage.setData(fxUserInfo.getNickName()+ "修改群名称为:"+ name);
         imMessage.setTo_name(name);
@@ -179,7 +176,7 @@ public class GroupController extends BaseController {
         imMessage.setChat_type("group");
         imMessage.setOptions(null);
         imMessage.setCreate_time(System.currentTimeMillis());
-        imMessage.setIs_remove("0");
+        imMessage.setIs_remove(0);
         List<FxGroupUser> fxGroupUsers = fxGroupUserService.selectByGroupId(groupId);
         MyWebSocket myWebSocket = new MyWebSocket();
         String message = JSON.toJSONString(imMessage);
@@ -209,8 +206,8 @@ public class GroupController extends BaseController {
         imMessage.setId(System.currentTimeMillis()+"");
         imMessage.setFrom_avatar(fxUserInfo.getAvatar());
         imMessage.setFrom_name(fxUserInfo.getNickName());
-        imMessage.setFrom_id(authentication+"");
-        imMessage.setTo_id(groupId+"");
+        imMessage.setFrom_id(authentication);
+        imMessage.setTo_id(groupId);
         imMessage.setType("system");
         imMessage.setData("[新公告] "+remark);
         imMessage.setTo_name(fxGroupInfo.getGroupName());
@@ -218,7 +215,7 @@ public class GroupController extends BaseController {
         imMessage.setChat_type("group");
         imMessage.setOptions(null);
         imMessage.setCreate_time(System.currentTimeMillis());
-        imMessage.setIs_remove("0");
+        imMessage.setIs_remove(0);
         List<FxGroupUser> fxGroupUsers = fxGroupUserService.selectByGroupId(groupId);
         MyWebSocket myWebSocket = new MyWebSocket();
         String message = JSON.toJSONString(imMessage);
@@ -230,7 +227,7 @@ public class GroupController extends BaseController {
     }
 
 
-    @ApiOperation(value = "踢出某个群成员 【客户端】" ,  notes="提出某个群成员")
+    @ApiOperation(value = "踢出某个群成员 【客户端】" ,  notes="踢出某个群成员")
     @RequestMapping(path = { "/kickoff" }, method = {RequestMethod.POST })
     public AjaxReturn kickoff(HttpServletRequest request, @NotNull Integer groupId, @NotNull Integer userId ){
         Integer authentication = getAuthentication(request);
@@ -256,8 +253,8 @@ public class GroupController extends BaseController {
         imMessage.setId(System.currentTimeMillis()+"");
         imMessage.setFrom_avatar(fxUserInfo.getAvatar());
         imMessage.setFrom_name(fxUserInfo.getNickName());
-        imMessage.setFrom_id(authentication+"");
-        imMessage.setTo_id(groupId+"");
+        imMessage.setFrom_id(authentication);
+        imMessage.setTo_id(groupId);
         imMessage.setType("system");
         imMessage.setData(fxUserInfo.getNickName()+"将 "+user.getNickName()+"移出群聊");
         imMessage.setTo_name(fxGroupInfo.getGroupName());
@@ -265,12 +262,67 @@ public class GroupController extends BaseController {
         imMessage.setChat_type("group");
         imMessage.setOptions(null);
         imMessage.setCreate_time(System.currentTimeMillis());
-        imMessage.setIs_remove("0");
+        imMessage.setIs_remove(0);
         List<FxGroupUser> fxGroupUsers = fxGroupUserService.selectByGroupId(groupId);
         MyWebSocket myWebSocket = new MyWebSocket();
         String message = JSON.toJSONString(imMessage);
         fxGroupUsers.forEach(fx->{
             myWebSocket.sendMessage(message,fx.getUserId()+"","group",authentication+"",null);
+        });
+        return new AjaxReturn<>(200,"操作成功",null);
+    }
+
+    ///group/invite
+
+    @ApiOperation(value = "邀请好友加入群 【客户端】" ,  notes="邀请好友加入群")
+    @RequestMapping(path = { "/invite" }, method = {RequestMethod.POST })
+    public AjaxReturn invite(HttpServletRequest request, @NotNull Integer groupId, @NotNull Integer[] ids ){
+        Integer fromId = getAuthentication(request);
+        FxGroupInfo fxGroupInfo = new FxGroupInfo();
+        FxGroupInfo fxGroupInfo1 = fxGroupInfoService.selectByPrimaryKey(groupId);
+        if (fxGroupInfo1==null){
+            return new AjaxReturn<>(500,"该群聊被解散了！",null);
+        }
+        if (fxGroupInfo1.getGroupState()==1){
+            return new AjaxReturn<>(500,"该群聊被封禁！",null);
+        }
+        List<FxGroupUser> list = new ArrayList<>();
+        for (Integer id : ids) {
+            FxGroupUser fxGroupUser = new FxGroupUser();
+            fxGroupUser.setGroupId(groupId);
+            fxGroupUser.setUserId(id);
+            fxGroupUser.setUserIdentity(2);
+            fxGroupUser.setCreateTime(new Date());
+            fxGroupUser.setUpdateTime(new Date());
+            fxGroupUser.setUserGroupState(0);
+            list.add(fxGroupUser);
+        }
+         fxGroupUserService.insertForeach(list);
+        FxUserInfo fxUserInfo = userInfoService.selectByPrimaryKey(fromId);
+        String str="";
+        for(Integer id:ids){
+            FxUserInfo fxUserInfo1= userInfoService.selectByPrimaryKey(id);
+            str=fxUserInfo1.getNickName()+"...";
+        }
+        ImMessage imMessage = new ImMessage();
+        imMessage.setId(System.currentTimeMillis()+"");
+        imMessage.setFrom_avatar(fxUserInfo.getAvatar());
+        imMessage.setFrom_name(fxUserInfo.getNickName());
+        imMessage.setFrom_id(fromId);
+        imMessage.setTo_id(groupId);
+        imMessage.setType("system");
+        imMessage.setData(fxUserInfo.getNickName() +"邀请" +str+"加入群聊");
+        imMessage.setTo_name(fxGroupInfo.getGroupName());
+        imMessage.setTo_avatar(fxGroupInfo.getGroupAvatar());
+        imMessage.setChat_type("group");
+        imMessage.setOptions(null);
+        imMessage.setCreate_time(System.currentTimeMillis());
+        imMessage.setIs_remove(0);
+        List<FxGroupUser> fxGroupUsers = fxGroupUserService.selectByGroupId(groupId);
+        MyWebSocket myWebSocket = new MyWebSocket();
+        String message = JSON.toJSONString(imMessage);
+        fxGroupUsers.forEach(fx->{
+            myWebSocket.sendMessage(message,fx.getUserId()+"","group",fromId+"",null);
         });
         return new AjaxReturn<>(200,"操作成功",null);
     }

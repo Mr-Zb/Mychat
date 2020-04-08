@@ -63,4 +63,7 @@ public class FxGroupUserService{
     public List<FxGroupInfo> selectByUserId(Integer userId){
      return fxGroupUserMapper.selectByUserId(userId);
     }
+    public int insertForeach(List<FxGroupUser> list){
+        return fxGroupUserMapper.insertForeach(list);
+    }
 }

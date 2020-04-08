@@ -25,11 +25,11 @@ public class ImMessage implements Serializable {
     /**
      * 发送者ID
      */
-    private String from_id;
+    private Integer from_id;
     /**
      * 接受者ID/群ID
      */
-    private String to_id;
+    private Integer to_id;
     /**
      * 接受者 接受者人/群 名称
      */
@@ -62,7 +62,7 @@ public class ImMessage implements Serializable {
     /**
      * 是否撤回
      */
-    private String is_remove;
+    private Integer is_remove;
 
 
 
