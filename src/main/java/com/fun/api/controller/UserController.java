@@ -44,12 +44,20 @@ public class UserController extends BaseController {
     private FxRequestStateMapper requestStateMapper;
 
     @ApiOperation(value = "通讯录 【客户端】" ,  notes="通讯录")
-    @RequestMapping(path = { "/friends" }, method = {RequestMethod.POST ,RequestMethod.GET})
+    @RequestMapping(path = { "/friends" }, method = {RequestMethod.POST})
     public AjaxReturn friends(HttpServletRequest request){
         Integer authentication = getAuthentication(request);
         List<FxFriends> fxFriends = fxFriendsService.selectByUserId(authentication);
         List<MyList> myLists = listToSortByName.listToSortByName(fxFriends);
         return new AjaxReturn(200, "查询成功！", myLists);
+    }
+
+    @ApiOperation(value = "通讯录 【客户端】" ,  notes="通讯录")
+    @RequestMapping(path = { "/myfriends" }, method = {RequestMethod.POST})
+    public AjaxReturn myfriends(HttpServletRequest request){
+        Integer authentication = getAuthentication(request);
+        List<FxFriends> fxFriends = fxFriendsService.selectByUserId(authentication);
+        return new AjaxReturn(200, "查询成功！", fxFriends);
     }
 
     @ApiOperation(value = "我的信息 【客户端】" ,  notes="我的信息")
@@ -167,7 +175,7 @@ public class UserController extends BaseController {
         return new AjaxReturn<>(200,null,null);
     }
 
-    @ApiOperation(value = "修改昵称 【客户端】" ,  notes="修改昵称")
+    @ApiOperation(value = "修改头像 【客户端】" ,  notes="修改头像")
     @RequestMapping(path = { "/update/avatar" }, method = {RequestMethod.POST })
     public AjaxReturn updateImg(HttpServletRequest request,String avatar){
         FxUserInfo fxUserInfo = new FxUserInfo();

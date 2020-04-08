@@ -147,7 +147,7 @@ public class MessageController extends BaseController {
         list.forEach(message -> {
             MyWebSocket myWebSocket = new MyWebSocket();
             JSONObject jsonObject = JSON.parseObject((String) message);
-            String from_id = (String) jsonObject.get("from_id");
+            String from_id = (String) jsonObject.get(fromId);
             String chat_type = (String) jsonObject.get("chat_type");
             myWebSocket.sendMessage((String) message, fromId + "", from_id, chat_type, null);
         });

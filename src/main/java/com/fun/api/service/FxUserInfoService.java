@@ -66,6 +66,20 @@ public class FxUserInfoService {
 
 
     public int updateByPrimaryKeySelective(FxUserInfo record) {
+        QrCode qrCode = new QrCode();
+        qrCode.setId(record.getFxId()).setEvent("navigateTo").setType("user");
+        String message = JSON.toJSONString(qrCode);
+        String tem = System.currentTimeMillis()+".jpg";
+        InputStream inputStream = null;
+        String aliyun ="";
+        try {
+            System.err.println(userImg);
+            inputStream = QrCodeUtils.encode3(message, record.getAvatar(), true);
+            aliyun = aliyunUtil.aliyun(inputStream, tem);
+            record.setQrCode(aliyun);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return fxUserInfoMapper.updateByPrimaryKeySelective(record);
     }
 

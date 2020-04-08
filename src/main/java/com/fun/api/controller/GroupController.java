@@ -2,10 +2,7 @@ package com.fun.api.controller;
 
 import com.alibaba.fastjson.JSON;
 import com.fun.api.aliyunOSS.AliyunUtil;
-import com.fun.api.domain.FxGroupInfo;
-import com.fun.api.domain.FxGroupUser;
-import com.fun.api.domain.FxUserInfo;
-import com.fun.api.domain.ImMessage;
+import com.fun.api.domain.*;
 import com.fun.api.scoket.MyWebSocket;
 import com.fun.api.service.FxGroupInfoService;
 import com.fun.api.service.FxGroupUserService;
@@ -256,7 +253,7 @@ public class GroupController extends BaseController {
         imMessage.setFrom_id(authentication);
         imMessage.setTo_id(groupId);
         imMessage.setType("system");
-        imMessage.setData(fxUserInfo.getNickName()+"将 "+user.getNickName()+"移出群聊");
+        imMessage.setData(fxUserInfo.getNickName()+"将 "+user.getNickName()+" 移出群聊");
         imMessage.setTo_name(fxGroupInfo.getGroupName());
         imMessage.setTo_avatar(fxGroupInfo.getGroupAvatar());
         imMessage.setChat_type("group");
@@ -311,9 +308,9 @@ public class GroupController extends BaseController {
         imMessage.setFrom_id(fromId);
         imMessage.setTo_id(groupId);
         imMessage.setType("system");
-        imMessage.setData(fxUserInfo.getNickName() +"邀请" +str+"加入群聊");
-        imMessage.setTo_name(fxGroupInfo.getGroupName());
-        imMessage.setTo_avatar(fxGroupInfo.getGroupAvatar());
+        imMessage.setData(fxUserInfo.getNickName() +"邀请" +str+" 加入群聊");
+        imMessage.setTo_name(fxGroupInfo1.getGroupName());
+        imMessage.setTo_avatar(fxGroupInfo1.getGroupAvatar());
         imMessage.setChat_type("group");
         imMessage.setOptions(null);
         imMessage.setCreate_time(System.currentTimeMillis());
@@ -325,5 +322,25 @@ public class GroupController extends BaseController {
             myWebSocket.sendMessage(message,fx.getUserId()+"","group",fromId+"",null);
         });
         return new AjaxReturn<>(200,"操作成功",null);
+    }
+
+   //
+
+    @ApiOperation(value = "扫码加群 【客户端】" ,  notes="邀请好友加入群")
+    @RequestMapping(path = { "/checkrelation" }, method = {RequestMethod.POST })
+    public AjaxReturn checkrelation(HttpServletRequest request, Integer id ){
+        Integer userId = getAuthentication(request);
+        FxGroupUser fxGroupUser = fxGroupUserService.selectByIds(id, userId);
+        FxGroupInfo fxGroupInfo = fxGroupInfoService.selectByPrimaryKey(id);
+        Qrdata qrdata = new Qrdata();
+        if (fxGroupUser==null){
+            qrdata.setStatus(false);
+            qrdata.setGroup(fxGroupInfo);
+            return new AjaxReturn<>(200,null,qrdata);
+        }else {
+            qrdata.setStatus(true);
+            qrdata.setGroup(fxGroupInfo);
+            return new AjaxReturn<>(200,null,qrdata);
+        }
     }
 }

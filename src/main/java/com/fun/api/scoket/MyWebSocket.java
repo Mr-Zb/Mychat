@@ -143,27 +143,4 @@ public class MyWebSocket {
             redisTemplate.opsForList().rightPush("getmessage_" + Integer.parseInt(toId), message);
         }
     }
-
-    /**
-     * 群发
-     *
-     * @param message
-     */
-    public void sendMessageToGroup(String message, String Ids) {
-        //TODO如果群成员在线 则推动消息过去 不在线就保存数据到redis中
-        //此处可以让前端传群成员id过来 省去查询数据库或者redis的操作
-        String[] split = Ids.split(",");
-        for (String id : split) {
-            //线判断存不存在 再判断是否能连接
-            if (sessionMap.containsKey(id) && sessionMap.get(id).session.isOpen()) {
-                try {
-                    sessionMap.get(id).session.getBasicRemote().sendText(message);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            } else {
-                redisTemplate.opsForZSet().add(id, message, System.currentTimeMillis());
-            }
-        }
-    }
 }
