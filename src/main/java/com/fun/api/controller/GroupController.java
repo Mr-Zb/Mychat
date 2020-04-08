@@ -343,4 +343,48 @@ public class GroupController extends BaseController {
             return new AjaxReturn<>(200,null,qrdata);
         }
     }
+
+    @ApiOperation(value = "邀请好友加入群 【客户端】" ,  notes="邀请好友加入群")
+    @RequestMapping(path = { "/join" }, method = {RequestMethod.POST })
+    public AjaxReturn join(HttpServletRequest request,@NotNull Integer id ){
+
+        Integer fromId = getAuthentication(request);
+        FxGroupInfo fxGroupInfo = fxGroupInfoService.selectByPrimaryKey(id);
+        if (fxGroupInfo==null){
+            return new AjaxReturn<>(500,"该群聊被解散了！",null);
+        }
+        if (fxGroupInfo.getGroupState()==1){
+            return new AjaxReturn<>(500,"该群聊被封禁！",null);
+        }
+        FxGroupUser fxGroupUser = new FxGroupUser();
+        fxGroupUser.setGroupId(id);
+        fxGroupUser.setUserId(fromId);
+        fxGroupUser.setUserIdentity(2);
+        fxGroupUser.setCreateTime(new Date());
+        fxGroupUser.setUpdateTime(new Date());
+        fxGroupUser.setUserGroupState(0);
+        fxGroupUserService.insertSelective(fxGroupUser);
+        FxUserInfo fxUserInfo = userInfoService.selectByPrimaryKey(fromId);
+        ImMessage imMessage = new ImMessage();
+        imMessage.setId(System.currentTimeMillis()+"");
+        imMessage.setFrom_avatar(fxUserInfo.getAvatar());
+        imMessage.setFrom_name(fxUserInfo.getNickName());
+        imMessage.setFrom_id(fromId);
+        imMessage.setTo_id(id);
+        imMessage.setType("system");
+        imMessage.setData("【新人加入】"+fxUserInfo.getNickName()+ "加入该群聊");
+        imMessage.setTo_name(fxGroupInfo.getGroupName());
+        imMessage.setTo_avatar(fxGroupInfo.getGroupAvatar());
+        imMessage.setChat_type("group");
+        imMessage.setOptions(null);
+        imMessage.setCreate_time(System.currentTimeMillis());
+        imMessage.setIs_remove(0);
+        List<FxGroupUser> fxGroupUsers = fxGroupUserService.selectByGroupId(id);
+        MyWebSocket myWebSocket = new MyWebSocket();
+        String message = JSON.toJSONString(imMessage);
+        fxGroupUsers.forEach(fx->{
+            myWebSocket.sendMessage(message,fx.getUserId()+"","group",fromId+"",null);
+        });
+        return new AjaxReturn<>(200,"操作成功",null);
+    }
 }

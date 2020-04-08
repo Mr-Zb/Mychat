@@ -4,7 +4,6 @@ import com.fun.api.domain.FxFriends;
 import com.fun.api.domain.FxRequestState;
 import com.fun.api.domain.FxUserInfo;
 import com.fun.api.domain.MyList;
-import com.fun.api.mapper.FxRequestStateMapper;
 import com.fun.api.scoket.MyWebSocket;
 import com.fun.api.service.FxFriendsService;
 import com.fun.api.service.FxRequestStateService;
@@ -41,7 +40,7 @@ public class UserController extends BaseController {
     private FxRequestStateService fxRequestStateService;
 
     @Autowired
-    private FxRequestStateMapper requestStateMapper;
+    private FxRequestStateService stateService;
 
     @ApiOperation(value = "通讯录 【客户端】" ,  notes="通讯录")
     @RequestMapping(path = { "/friends" }, method = {RequestMethod.POST})
@@ -146,7 +145,7 @@ public class UserController extends BaseController {
     @ApiOperation(value = "拒绝 【客户端】" ,  notes="拒绝")
     @RequestMapping(path = { "/refuse" }, method = {RequestMethod.POST })
     public AjaxReturn refuse(FxRequestState fxRequestState){
-        requestStateMapper.updateByPrimaryKeySelective(fxRequestState);
+        stateService.updateByPrimaryKeySelective(fxRequestState);
         return new AjaxReturn(200, "发出请求成功！", null);
     }
 
@@ -182,6 +181,17 @@ public class UserController extends BaseController {
         fxUserInfo.setFxId(getAuthentication(request));
         fxUserInfo.setAvatar(avatar);
         userInfoService.updateByPrimaryKeySelective(fxUserInfo);
+        return new AjaxReturn<>(200,null,null);
+    }
+    //
+    @ApiOperation(value = "修头备注 【客户端】" ,  notes="修头备注")
+    @RequestMapping(path = { "/update/remark" }, method = {RequestMethod.POST })
+    public AjaxReturn remark(HttpServletRequest request,Integer id,String remark){
+        FxFriends fxFriends = new FxFriends();
+        fxFriends.setFriendRemark(remark);
+        fxFriends.setUserId(getAuthentication(request));
+        fxFriends.setFriendId(id);
+        fxFriendsService.updateByIds(fxFriends);
         return new AjaxReturn<>(200,null,null);
     }
 

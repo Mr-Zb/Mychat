@@ -160,4 +160,8 @@ public class FxFriendsService {
         requestStateMapper.deleteByIds(record.getUserId(),record.getFriendId());
         return fxFriendsMapper.deleteByIds(record);
     }
+
+    public int updateByIds(FxFriends record){
+        return fxFriendsMapper.updateByIds(record);
+    }
 }

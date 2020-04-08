@@ -90,7 +90,7 @@ public class MessageController extends BaseController {
             String message = JSON.toJSONString(imMessage);
             myWebSocket.sendMessage(message, to_id, chat_type, fromId + "", null);
             //保存聊天信息
-            redisTemplate.opsForList().rightPush("chatlog_" + fromId + chat_type + "_" + Integer.parseInt(to_id), message);
+            //redisTemplate.opsForList().rightPush("chatlog_" + fromId + chat_type + "_" + Integer.parseInt(to_id), message);
             return new AjaxReturn<>(200, null, imMessage);
         } else {
             //TODO
@@ -143,13 +143,13 @@ public class MessageController extends BaseController {
         Integer fromId = getAuthentication(request);
         String key = "getmessage_" + fromId;
         List list = redisTemplate.opsForList().range(key, 0, -1);
-        redisTemplate.opsForList().trim(key, 1, 0);
+        //redisTemplate.opsForList().trim(key, 1, 0);
         list.forEach(message -> {
             MyWebSocket myWebSocket = new MyWebSocket();
             JSONObject jsonObject = JSON.parseObject((String) message);
-            String from_id = (String) jsonObject.get(fromId);
+            String from_id = (String) jsonObject.get("from_id");
             String chat_type = (String) jsonObject.get("chat_type");
-            myWebSocket.sendMessage((String) message, fromId + "", from_id, chat_type, null);
+            myWebSocket.sendMessage((String) message, fromId + "",chat_type , from_id, null);
         });
         return new AjaxReturn<>(200, "发送成功！", null);
     }
@@ -164,15 +164,19 @@ public class MessageController extends BaseController {
         imMessage.setChat_type(chat_type);
         imMessage.setTo_id(Integer.parseInt(to_id));
         //// 单聊
+        MyWebSocket myWebSocket = new MyWebSocket();
         if ("user".equals(chat_type)) {
-            MyWebSocket myWebSocket = new MyWebSocket();
             String message = JSON.toJSONString(imMessage);
             myWebSocket.sendMessage(message, to_id, chat_type, fromId + "", "recall");
             return new AjaxReturn<>(200, null, imMessage);
-        } else if ("group".equals(chat_type)) {
-            //TODO
+        } else {
+            List<FxGroupUser> fxGroupUsers = fxGroupUserService.selectByGroupId(Integer.parseInt(to_id));
+            String message = JSON.toJSONString(imMessage);
+            fxGroupUsers.forEach(fx->{
+             myWebSocket.sendMessage(message, to_id, chat_type, fromId + "", "recall");
+            });
+            return new AjaxReturn<>(200, null, imMessage);
         }
-        return new AjaxReturn<>(500, "撤回失败！", null);
     }
 
 }

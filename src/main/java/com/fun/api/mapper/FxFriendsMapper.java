@@ -60,5 +60,5 @@ public interface FxFriendsMapper {
     FxFriends selectByKeyword(String keyword);
     FxFriends selectFriend(@Param("userId") Integer userId, @Param("friendId") Integer friendId);
     int deleteByIds(FxFriends record);
-
+    int updateByIds(FxFriends record);
 }

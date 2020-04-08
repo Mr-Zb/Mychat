@@ -58,6 +58,7 @@ public class MyWebSocket {
         this.userId = Id + "";
         this.session = session;
         sessionMap.put(Id + "", this);
+        System.err.println(Id);
         //TODO 查询是否有离线消息 有的话发送（ 群消息和个人消息和系统消息）
         // Set range = redisTemplate.opsForZSet().range(Id+"", 0, -1);
 //        try {
@@ -134,7 +135,7 @@ public class MyWebSocket {
                 mydata.setMsg(msg);
                 mydata.setData(message);
                 sessionMap.get(toId).session.getBasicRemote().sendText(JSON.toJSONString(mydata));
-                redisTemplate.opsForList().rightPush("chatlog_" + toId+ chat_type + "_" + Integer.parseInt(from_id), message);
+                //redisTemplate.opsForList().rightPush("chatlog_" + toId+ chat_type + "_" + Integer.parseInt(from_id), message);
             } catch (IOException e) {
                 e.printStackTrace();
             }
